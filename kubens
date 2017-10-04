@@ -1,0 +1,12 @@
+#!/bin/bash
+
+namespace=$1
+
+if [[ "$namespace" == "" ]]; then
+    echo "Usage: kubens NAMESPACE"
+    exit 1
+fi
+
+kubectl config set-context $(kubectl config current-context) --namespace=$namespace
+
+echo "k8s namespace set to '$namespace'"
