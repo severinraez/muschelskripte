@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Summarizes git status for each directory in the
+# current directory that is a git repository.
+
+set -e
+
+cd $(dirname $0)
+
+export LANG=en_US
+
+git_status() {
+    dir=$1
+    cd $dir
+
+    printf "# $dir\n\n"
+    git -c color.ui=always status 2>/dev/null |\
+        sed '
+          s/^/  /
+          /Your branch/d
+          /nothing to commit/d
+          /(use.*)/d
+          /^\s*$/d
+          s/On branch \(.*\)/Branch: \1/
+        '
+    printf "\n"
+
+    cd - > /dev/null
+}
+
+repo_folders=$(
+  find . \
+    -mindepth 2 -maxdepth 2 \
+    -name '.git' \
+    -type d | \
+      sed '
+        s/\/.git//
+        s/\.\///
+      ' |\
+      sort
+);
+
+for folder in $repo_folders; do
+  git_status "$folder"
+done
+
